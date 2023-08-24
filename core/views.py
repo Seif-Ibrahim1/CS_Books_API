@@ -10,7 +10,7 @@ from django.db.models import Q
 # this is the main endpoints to refer to
 @api_view(['GET'])
 def endpoints(request):
-    data = ['books/', 'authors/', 'book/by/name/:name', 'author/by/name/:name']
+    data = ['v1/books/', 'v1/authors/', 'v1/books/:id', 'v1/authors/:id']
     return Response(data)
 
 # here we will add, delete, edit and get books
@@ -71,3 +71,61 @@ def authors_list(request):
         return Response(serializer.data)
         
 
+@api_view(['GET', 'PUT'])
+def book_by_id(request, pk):
+    if request.method == 'GET':
+        book = Book.objects.filter(id=pk)
+        serializer = BookSerializer(book, many=True)
+        return Response(serializer.data)
+    
+    if request.method =='PUT':
+        book = Book.objects.get(id=pk)
+        data = request.data
+        if 'name' in data:
+            book.name = data['name']
+
+        if 'description' in data:
+            book.description = data['description']
+
+        if 'publication_year' in data:
+            book.publication_year = data['publication_year']
+
+        
+        if 'authors' in data:
+            for author in data['authors']:
+                try:
+                    author = Author.objects.get(name=author)
+                    book.authors.add(author)
+                except:
+                    raise NotFound()
+        
+        serializer = BookSerializer(book, many=False)
+        book.save()
+        return Response(serializer.data)
+    
+@api_view(['GET', 'PUT'])
+def author_by_id(request, pk):
+    if request.method == 'GET':
+        author = Author.objects.filter(id=pk)
+        serializer = AuthorSerializer(author, many=True)
+        return Response(serializer.data)
+
+    if request.method == 'PUT':
+        author = Author.objects.get(id=pk)
+        data = request.data
+
+        if 'name' in data:
+            author.name = data['name']
+        if 'info' in data:
+            author.info = data['info']
+        if 'books' in data:
+            for book in data['books']:
+                try:
+                    book = Book.objects.get(name=book)
+                    author.books.add(book)
+                except:
+                    raise NotFound()
+                
+        serializer = AuthorSerializer(author, many=False)
+        author.save()
+        return Response(serializer.data)
