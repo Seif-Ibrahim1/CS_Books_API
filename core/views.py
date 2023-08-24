@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from .models import Book, Author
 from .serializers import BookSerializer, AuthorSerializer
 from rest_framework.exceptions import NotFound
+from django.db.models import Q
 # Create your views here.
 
 # this is the main endpoints to refer to
@@ -15,8 +16,12 @@ def endpoints(request):
 # here we will add, delete, edit and get books
 @api_view(['GET', 'POST'])
 def books_list(request):
+    # /books/?query=
     if request.method == 'GET':
-        books = Book.objects.all()
+        query = request.GET.get('query')
+        if(query == None):
+            query = ''
+        books = Book.objects.filter(Q(name__icontains=query) | Q(description__icontains=query))
         serializer = BookSerializer(books, many=True)
         return Response(serializer.data)
     
@@ -43,7 +48,10 @@ def books_list(request):
 @api_view(['GET', 'POST'])
 def authors_list(request):
     if request.method == 'GET':
-        authors = Author.objects.all()
+        query = request.GET.get('query')
+        if(query == None):
+            query = ''
+        authors = Author.objects.filter(Q(name__icontains=query) | Q(info__icontains=query))
         serializer = AuthorSerializer(authors, many=True)
         return Response(serializer.data)
     
