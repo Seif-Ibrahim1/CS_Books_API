@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from .models import Book, Author
+from .serializers import BookSerializer, AuthorSerializer
 # Create your views here.
 
 # this is the main endpoints to refer to
@@ -13,4 +15,6 @@ def endpoints(request):
 @api_view(['GET'])
 def books_list(request):
     if request.method == 'GET':
-        pass
+        books = Book.objects.all()
+        serializer = BookSerializer(books, many=True)
+        return Response(serializer.data)
