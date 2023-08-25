@@ -9,7 +9,7 @@ class AuthorSerializer(ModelSerializer):
 
     def get_books(self, obj):
         books = obj.books.all()
-        return [book.name for book in books]
+        return [book.title for book in books]
 
 
 class BookSerializer(ModelSerializer):

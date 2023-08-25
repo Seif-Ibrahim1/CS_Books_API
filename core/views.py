@@ -5,6 +5,7 @@ from .models import Book, Author
 from .serializers import BookSerializer, AuthorSerializer
 from rest_framework.exceptions import NotFound
 from django.db.models import Q
+import requests
 # Create your views here.
 
 # this is the main endpoints to refer to
@@ -21,19 +22,21 @@ def books_list(request):
         query = request.GET.get('query')
         if(query == None):
             query = ''
-        books = Book.objects.filter(Q(name__icontains=query) | Q(description__icontains=query))
+        books = Book.objects.filter(Q(title__icontains=query) | Q(description__icontains=query))
         serializer = BookSerializer(books, many=True)
         return Response(serializer.data)
     
     if request.method == 'POST':
         data = request.data
-        name = data['name']
+        title = data['title']
         description = data['description']
         publication_year = data['publication_year']
+        thumbnail_url = data['thumbnail_url']
         
-        book = Book.objects.create(name=name,
+        book = Book.objects.create(title=title,
                                     description=description,
-                                      publication_year=publication_year)
+                                      publication_year=publication_year,
+                                      thumbnail_url=thumbnail_url)
         for author in data['authors']:
             try:
                 author = Author.objects.get(name=author)
@@ -51,19 +54,18 @@ def authors_list(request):
         query = request.GET.get('query')
         if(query == None):
             query = ''
-        authors = Author.objects.filter(Q(name__icontains=query) | Q(info__icontains=query))
+        authors = Author.objects.filter(Q(name__icontains=query))
         serializer = AuthorSerializer(authors, many=True)
         return Response(serializer.data)
     
     if request.method == 'POST':
         data = request.data
         name = data['name']
-        info = data['info']
    
-        author = Author.objects.create(name=name, info=info)
+        author = Author.objects.create(name=name)
         for book in data['books']:
             try:
-                book = Book.objects.get(name=book)
+                book = Book.objects.get(title=book)
                 author.books.add(book)
             except:
                 raise NotFound()
@@ -71,7 +73,7 @@ def authors_list(request):
         return Response(serializer.data)
         
 
-@api_view(['GET', 'PUT'])
+@api_view(['GET', 'PUT', 'DELETE'])
 def book_by_id(request, pk):
     if request.method == 'GET':
         book = Book.objects.filter(id=pk)
@@ -81,8 +83,8 @@ def book_by_id(request, pk):
     if request.method =='PUT':
         book = Book.objects.get(id=pk)
         data = request.data
-        if 'name' in data:
-            book.name = data['name']
+        if 'title' in data:
+            book.title = data['title']
 
         if 'description' in data:
             book.description = data['description']
@@ -90,7 +92,9 @@ def book_by_id(request, pk):
         if 'publication_year' in data:
             book.publication_year = data['publication_year']
 
-        
+        if 'thumbnail_url' in data:
+            book.thumbnail_url = data['thumbnail_url']
+
         if 'authors' in data:
             for author in data['authors']:
                 try:
@@ -103,7 +107,12 @@ def book_by_id(request, pk):
         book.save()
         return Response(serializer.data)
     
-@api_view(['GET', 'PUT'])
+    if request.method == 'DELETE':
+        book = Book.objects.get(id=pk)
+        book.delete()
+        return Response('Deleted Succesfully')
+    
+@api_view(['GET', 'PUT', 'DELETE'])
 def author_by_id(request, pk):
     if request.method == 'GET':
         author = Author.objects.filter(id=pk)
@@ -116,12 +125,11 @@ def author_by_id(request, pk):
 
         if 'name' in data:
             author.name = data['name']
-        if 'info' in data:
-            author.info = data['info']
+
         if 'books' in data:
             for book in data['books']:
                 try:
-                    book = Book.objects.get(name=book)
+                    book = Book.objects.get(title=book)
                     author.books.add(book)
                 except:
                     raise NotFound()
@@ -129,3 +137,8 @@ def author_by_id(request, pk):
         serializer = AuthorSerializer(author, many=False)
         author.save()
         return Response(serializer.data)
+    
+    if request.method == 'DELETE':
+        author = Author.objects.get(id=pk)
+        author.delete()
+        return Response('Deleted Succesfully')
