@@ -57,7 +57,14 @@ You can use tools like curl or Postman to interact with the API. Make requests t
        python manage.py makemigrations
        python manage.py migrate
    ```
-5. Start the development server:
+5. (optional) Run the refresh database command to get books in your local database
+   
+   ***Please note that it will take some time since it is not optimized yet (you can grap a coffee while waiting for it 😄)***
+   ```bash
+       python manage.py refresh_database
+   ```
+   
+7. Start the development server:
    ```bash
        python manage.py runserver
    ```
