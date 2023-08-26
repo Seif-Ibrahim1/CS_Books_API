@@ -54,7 +54,6 @@ You can use tools like curl or Postman to interact with the API. Make requests t
    ```
 4. Run database migrations:
    ```bash
-       python manage.py makemigrations
        python manage.py migrate
    ```
 5. (optional) Run the refresh database command to get books in your local database
