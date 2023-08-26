@@ -59,7 +59,7 @@ You can use tools like curl or Postman to interact with the API. Make requests t
    ```
 5. (optional) Run the refresh database command to get books in your local database
    
-   ***Please note that it will take some time since it is not optimized yet (you can grap a coffee while waiting for it 😄)***
+   ***Please note that it may take some time since it is building the whole database (you can grap a coffee while it's doing it's magic 😄)***
    ```bash
        python manage.py refresh_database
    ```
