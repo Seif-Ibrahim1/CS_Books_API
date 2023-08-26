@@ -21,7 +21,7 @@ def books_list(request):
     if request.method == 'GET':
         query = request.GET.get('query')
         if(query == None):
-            query = ''
+            query = '' 
         books = Book.objects.filter(Q(title__icontains=query) | Q(description__icontains=query))
         serializer = BookSerializer(books, many=True)
         return Response(serializer.data)
