@@ -1,15 +1,16 @@
 from django.shortcuts import render
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from .models import Book, Author
 from .serializers import BookSerializer, AuthorSerializer
 from rest_framework.exceptions import NotFound
 from django.db.models import Q
-import requests
+from rest_framework.permissions import IsAuthenticated
 # Create your views here.
 
 # this is the main endpoints to refer to
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])  
 def endpoints(request):
     data = ['v1/books/', 'v1/authors/', 'v1/books/:id', 'v1/authors/:id']
     return Response(data)
